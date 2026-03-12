@@ -1,0 +1,282 @@
+[
+  {
+    "id": 1,
+    "action_type": "search_products",
+    "product_id": null,
+    "source_product_id": null,
+    "query": "ㅇㄷㄴ",
+    "created_at": "2026-03-12T03:01:23.783457Z"
+  },
+  {
+    "id": 2,
+    "action_type": "search_products",
+    "product_id": null,
+    "source_product_id": null,
+    "query": "desk",
+    "created_at": "2026-03-12T03:01:25.325108Z"
+  },
+  {
+    "id": 3,
+    "action_type": "open_product_from_grid",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:01:26.450726Z"
+  },
+  {
+    "id": 4,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:01:26.527788Z"
+  },
+  {
+    "id": 5,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:01:26.532519Z"
+  },
+  {
+    "id": 6,
+    "action_type": "search_products",
+    "product_id": null,
+    "source_product_id": null,
+    "query": "desk",
+    "created_at": "2026-03-12T03:01:33.327948Z"
+  },
+  {
+    "id": 7,
+    "action_type": "open_product_from_grid",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:01:33.486740Z"
+  },
+  {
+    "id": 8,
+    "action_type": "view_product",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:01:33.506706Z"
+  },
+  {
+    "id": 9,
+    "action_type": "view_product",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:01:33.517270Z"
+  },
+  {
+    "id": 10,
+    "action_type": "view_recommendation",
+    "product_id": 8,
+    "source_product_id": 7,
+    "query": null,
+    "created_at": "2026-03-12T03:01:56.164244Z"
+  },
+  {
+    "id": 11,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:01:56.172018Z"
+  },
+  {
+    "id": 12,
+    "action_type": "open_product_from_grid",
+    "product_id": 1,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:06:52.931559Z"
+  },
+  {
+    "id": 13,
+    "action_type": "view_product",
+    "product_id": 1,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:06:52.973253Z"
+  },
+  {
+    "id": 14,
+    "action_type": "view_product",
+    "product_id": 1,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:06:52.977628Z"
+  },
+  {
+    "id": 15,
+    "action_type": "open_product_from_grid",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:36.452938Z"
+  },
+  {
+    "id": 16,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:36.493657Z"
+  },
+  {
+    "id": 17,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:36.506834Z"
+  },
+  {
+    "id": 18,
+    "action_type": "open_product_from_grid",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:40.566369Z"
+  },
+  {
+    "id": 19,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:40.588665Z"
+  },
+  {
+    "id": 20,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:40.595699Z"
+  },
+  {
+    "id": 21,
+    "action_type": "open_product_from_grid",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:49.534298Z"
+  },
+  {
+    "id": 22,
+    "action_type": "view_product",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:49.576344Z"
+  },
+  {
+    "id": 23,
+    "action_type": "view_product",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:11:49.590403Z"
+  },
+  {
+    "id": 24,
+    "action_type": "open_product_from_grid",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:17:16.486983Z"
+  },
+  {
+    "id": 25,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:17:16.541243Z"
+  },
+  {
+    "id": 26,
+    "action_type": "open_product_from_grid",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:17:22.900154Z"
+  },
+  {
+    "id": 27,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:17:22.933333Z"
+  },
+  {
+    "id": 28,
+    "action_type": "open_product_from_grid",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:26:50.140397Z"
+  },
+  {
+    "id": 29,
+    "action_type": "view_product",
+    "product_id": 8,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:26:50.169693Z"
+  },
+  {
+    "id": 30,
+    "action_type": "open_product_from_grid",
+    "product_id": 3,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:26:55.001133Z"
+  },
+  {
+    "id": 31,
+    "action_type": "view_product",
+    "product_id": 3,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:26:55.053361Z"
+  },
+  {
+    "id": 32,
+    "action_type": "open_product_from_grid",
+    "product_id": 5,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:26:57.252549Z"
+  },
+  {
+    "id": 33,
+    "action_type": "view_product",
+    "product_id": 5,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:26:57.291669Z"
+  },
+  {
+    "id": 34,
+    "action_type": "open_product_from_grid",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:27:02.617667Z"
+  },
+  {
+    "id": 35,
+    "action_type": "view_product",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-03-12T03:27:02.690534Z"
+  }
+]
