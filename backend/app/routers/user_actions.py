@@ -1,16 +1,14 @@
-import json
 from collections import Counter, OrderedDict
-from datetime import datetime
-from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models import Product, UserAction
 
 router = APIRouter(prefix="/user-actions", tags=["user-actions"])
-
-DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "user_actions.json"
-PRODUCTS_PATH = Path(__file__).resolve().parent.parent / "data" / "products.json"
 
 
 class UserActionCreate(BaseModel):
@@ -23,111 +21,96 @@ class UserActionCreate(BaseModel):
     product_id: int | None = None
     source_product_id: int | None = None
     query: str | None = None
+    user_id: int | None = None
 
 
-def load_actions() -> list[dict]:
-    if not DATA_PATH.exists():
-        return []
-
-    with open(DATA_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def save_actions(actions: list[dict]) -> None:
-    with open(DATA_PATH, "w", encoding="utf-8") as f:
-        json.dump(actions, f, ensure_ascii=False, indent=2)
-
-
-def load_products() -> list[dict]:
-    if not PRODUCTS_PATH.exists():
-        return []
-
-    with open(PRODUCTS_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+def product_row_to_dict(p: Product) -> dict:
+    return {
+        "id": p.id,
+        "name": p.name,
+        "category": p.category,
+        "price": p.price,
+        "material": p.material,
+        "eco_score": p.eco_score,
+        "carbon_kg": p.carbon_kg,
+        "tag": p.tag,
+        "image_url": p.image_url or "",
+    }
 
 
 @router.get("/")
-def get_user_actions():
-    actions = load_actions()
-    return {"actions": actions, "count": len(actions)}
+def get_user_actions(db: Session = Depends(get_db)):
+    actions = db.query(UserAction).order_by(UserAction.created_at.desc()).limit(500).all()
+    return {
+        "actions": [
+            {
+                "id": a.id,
+                "action_type": a.action_type,
+                "product_id": a.product_id,
+                "source_product_id": a.source_product_id,
+                "query": a.query,
+                "created_at": a.created_at.isoformat(),
+            }
+            for a in actions
+        ],
+        "count": len(actions),
+    }
 
 
 @router.post("/")
-def create_user_action(payload: UserActionCreate):
-    actions = load_actions()
-
-    new_action = {
-        "id": len(actions) + 1,
-        "action_type": payload.action_type,
-        "product_id": payload.product_id,
-        "source_product_id": payload.source_product_id,
-        "query": payload.query,
-        "created_at": datetime.utcnow().isoformat() + "Z",
-    }
-
-    actions.append(new_action)
-    save_actions(actions)
-
-    return {"message": "Action recorded", "action": new_action}
+def create_user_action(payload: UserActionCreate, db: Session = Depends(get_db)):
+    action = UserAction(
+        user_id=payload.user_id,
+        action_type=payload.action_type,
+        product_id=payload.product_id,
+        source_product_id=payload.source_product_id,
+        query=payload.query,
+    )
+    db.add(action)
+    db.commit()
+    db.refresh(action)
+    return {"message": "Action recorded", "action_id": action.id}
 
 
 @router.get("/recent-products")
-def get_recent_products(limit: int = 4):
-    actions = load_actions()
+def get_recent_products(limit: int = 4, db: Session = Depends(get_db)):
+    actions = (
+        db.query(UserAction)
+        .filter(UserAction.action_type == "view_product", UserAction.product_id.isnot(None))
+        .order_by(UserAction.created_at.desc())
+        .limit(200)
+        .all()
+    )
 
-    recent_view_actions = [
-        action
-        for action in actions
-        if action["action_type"] == "view_product" and action["product_id"] is not None
-    ]
-
-    products = load_products()
-    product_map = {product["id"]: product for product in products}
-
-    ordered_recent = OrderedDict()
-
-    for action in reversed(recent_view_actions):
-        product_id = action["product_id"]
-        if product_id in product_map and product_id not in ordered_recent:
-            ordered_recent[product_id] = product_map[product_id]
-
-        if len(ordered_recent) >= limit:
+    seen: OrderedDict[int, dict] = OrderedDict()
+    for action in actions:
+        pid = action.product_id
+        if pid not in seen:
+            product = db.query(Product).filter(Product.id == pid).first()
+            if product:
+                seen[pid] = product_row_to_dict(product)
+        if len(seen) >= limit:
             break
 
-    return {
-        "products": list(ordered_recent.values()),
-        "count": len(ordered_recent),
-    }
+    return {"products": list(seen.values()), "count": len(seen)}
 
 
 @router.get("/most-viewed-products")
-def get_most_viewed_products(limit: int = 4):
-    actions = load_actions()
+def get_most_viewed_products(limit: int = 4, db: Session = Depends(get_db)):
+    actions = (
+        db.query(UserAction)
+        .filter(
+            UserAction.action_type.in_(["view_product", "view_recommendation"]),
+            UserAction.product_id.isnot(None),
+        )
+        .all()
+    )
 
-    counted_action_types = {
-        "view_product",
-        "view_recommendation",
-    }
-
-    product_counter = Counter()
-
-    for action in actions:
-        action_type = action.get("action_type")
-        product_id = action.get("product_id")
-
-        if action_type in counted_action_types and product_id is not None:
-            product_counter[product_id] += 1
-
-    products = load_products()
-    product_map = {product["id"]: product for product in products}
-
-    ranked_products = []
-    for product_id, view_count in product_counter.most_common(limit):
-        product = product_map.get(product_id)
+    counter: Counter = Counter(a.product_id for a in actions)
+    ranked = []
+    for pid, count in counter.most_common(limit):
+        product = db.query(Product).filter(Product.id == pid).first()
         if product:
-            ranked_products.append({**product, "view_count": view_count})
+            ranked.append({**product_row_to_dict(product), "view_count": count})
 
-    return {
-        "products": ranked_products,
-        "count": len(ranked_products),
-    }
+    return {"products": ranked, "count": len(ranked)}

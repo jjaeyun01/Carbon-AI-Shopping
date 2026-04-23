@@ -8,6 +8,12 @@ import Footer from "./components/layout/Footer";
 import ProductDetailPage from "./pages/ProductDetailPage.tsx";
 import RecentlyViewedSection from "./components/home/RecentlyViewedSection";
 import MostViewedSection from "./components/home/MostViewedSection";
+import CheckoutPage from "./pages/CheckoutPage.tsx";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage.tsx";
+import MarketplacePage from "./pages/MarketplacePage.tsx";
+import CartDrawer from "./components/cart/CartDrawer.tsx";
+import { CartProvider } from "./context/CartContext.tsx";
+import { AuthProvider } from "./context/AuthContext.tsx";
 
 function HomePage() {
   return (
@@ -24,15 +30,23 @@ function HomePage() {
 
 export default function App() {
   return (
-    <div className="appShell">
-      <Header />
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/product/:id" element={<ProductDetailPage />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <AuthProvider>
+      <CartProvider>
+        <div className="appShell">
+          <Header />
+          <CartDrawer />
+          <main>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </CartProvider>
+    </AuthProvider>
   );
 }

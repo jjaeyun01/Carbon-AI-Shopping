@@ -59,6 +59,7 @@ def recommend_products(
                 "shipping_type": product["shipping_type"],
                 "tag": product["tag"],
                 "image_url": product.get("image_url", ""),
+                "description": product.get("description", ""),
                 "similarity_score": similarity,
                 "eco_gain_score": eco_gain,
             }

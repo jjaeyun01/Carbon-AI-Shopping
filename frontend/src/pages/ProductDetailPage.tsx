@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import { trackUserAction } from "../services/userActions";
 
 type Product = {
@@ -45,8 +46,11 @@ export default function ProductDetailPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [qty, setQty] = useState(1);
+  const [addedFeedback, setAddedFeedback] = useState(false);
 
   const trackedProductRef = useRef<number | null>(null);
+  const { addToCart } = useCart();
 
   const API_BASE = "http://127.0.0.1:8000";
 
@@ -59,6 +63,8 @@ export default function ProductDetailPage() {
       try {
         setLoading(true);
         setError(null);
+        setQty(1);
+        setAddedFeedback(false);
 
         const [productRes, recommendationRes] = await Promise.all([
           fetch(`${API_BASE}/products/${numericId}`),
@@ -97,6 +103,23 @@ export default function ProductDetailPage() {
 
     fetchProductData();
   }, [id]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    for (let i = 0; i < qty; i++) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.image_url,
+        material: product.material,
+        eco_score: product.eco_score,
+        carbon_kg: product.carbon_kg,
+      });
+    }
+    setAddedFeedback(true);
+    setTimeout(() => setAddedFeedback(false), 2000);
+  };
 
   if (loading) {
     return (
@@ -178,6 +201,30 @@ export default function ProductDetailPage() {
                 <strong>{product.tag}</strong>
               </div>
             </div>
+
+            <div className="detailCartRow">
+              <div className="detailQtyControl">
+                <button
+                  className="detailQtyBtn"
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                >
+                  −
+                </button>
+                <span className="detailQtyValue">{qty}</span>
+                <button
+                  className="detailQtyBtn"
+                  onClick={() => setQty((q) => q + 1)}
+                >
+                  +
+                </button>
+              </div>
+              <button
+                className={`detailAddToCart${addedFeedback ? " added" : ""}`}
+                onClick={handleAddToCart}
+              >
+                {addedFeedback ? "Added to Cart ✓" : "Add to Cart"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -226,19 +273,37 @@ export default function ProductDetailPage() {
                       Estimated improvement: -{item.eco_gain_score} eco score
                     </div>
 
-                    <Link
-                      to={`/product/${item.id}`}
-                      className="detailRecommendationLink"
-                      onClick={() =>
-                        trackUserAction({
-                          action_type: "view_recommendation",
-                          product_id: item.id,
-                          source_product_id: product.id,
-                        })
-                      }
-                    >
-                      View details →
-                    </Link>
+                    <div className="detailRecommendationActions">
+                      <Link
+                        to={`/product/${item.id}`}
+                        className="detailRecommendationLink"
+                        onClick={() =>
+                          trackUserAction({
+                            action_type: "view_recommendation",
+                            product_id: item.id,
+                            source_product_id: product.id,
+                          })
+                        }
+                      >
+                        View details →
+                      </Link>
+                      <button
+                        className="detailRecommendationCart"
+                        onClick={() =>
+                          addToCart({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            image_url: item.image_url,
+                            material: item.material,
+                            eco_score: item.eco_score,
+                            carbon_kg: item.carbon_kg,
+                          })
+                        }
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}

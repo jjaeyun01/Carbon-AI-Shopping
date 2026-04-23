@@ -278,5 +278,29 @@
     "source_product_id": null,
     "query": null,
     "created_at": "2026-03-12T03:27:02.690534Z"
+  },
+  {
+    "id": 36,
+    "action_type": "open_product_from_grid",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-04-17T03:18:48.868301Z"
+  },
+  {
+    "id": 37,
+    "action_type": "view_product",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-04-17T03:18:48.871256Z"
+  },
+  {
+    "id": 38,
+    "action_type": "view_product",
+    "product_id": 7,
+    "source_product_id": null,
+    "query": null,
+    "created_at": "2026-04-17T03:18:59.519890Z"
   }
 ]

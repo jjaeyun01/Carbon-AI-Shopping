@@ -579,27 +579,100 @@ a.navLink.active::after {
 }
 
 .compareMedia {
-  height: 260px;
   border: 1px solid rgba(15, 26, 18, 0.08);
   border-radius: 18px;
+  overflow: hidden;
   display: flex;
-  align-items: flex-end;
-  padding: 18px;
+  flex-direction: column;
+  min-height: 280px;
 }
 
-.currentMedia {
-  background: linear-gradient(135deg, rgba(26, 61, 46, 0.95), rgba(45, 106, 79, 0.75));
+.compareMediaPhotoWrap {
+  flex: 1;
+  min-height: 200px;
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
-.betterMedia {
-  background: linear-gradient(135deg, rgba(45, 106, 79, 0.95), rgba(82, 183, 136, 0.72));
+.compareMediaImg {
+  max-width: 100%;
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.compareMediaNoPhoto {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.compareMediaFoot {
+  padding: 16px 18px 18px;
+}
+
+.compareMediaFootCurrent {
+  background: linear-gradient(135deg, rgba(26, 61, 46, 0.95), rgba(45, 106, 79, 0.82));
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.compareMediaFootBetter {
+  background: linear-gradient(135deg, rgba(45, 106, 79, 0.95), rgba(82, 183, 136, 0.78));
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .compareMediaLabel {
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 24px;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.compareMediaSnippet {
+  margin: 10px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.compareSourceLink {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.compareSourceLink:hover {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.compareCatalogNote {
+  max-width: 720px;
+  margin: -8px auto 28px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+  text-align: center;
+}
+
+.compareCatalogNote strong {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .compareStats {
@@ -698,6 +771,127 @@ a.navLink.active::after {
   gap: 4px;
   font-size: 13px;
   color: rgba(15, 26, 18, 0.7);
+}
+
+.compareUrlPanel {
+  max-width: 760px;
+  margin: 0 auto 32px;
+}
+
+.compareUrlRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.compareUrlInput {
+  flex: 1;
+  min-width: 220px;
+  max-width: none;
+}
+
+.compareUrlExamples {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.compareUrlExamplesLabel {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-right: 4px;
+}
+
+.compareChip {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.compareChip:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.compareChip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.compareChipGhost {
+  background: transparent;
+}
+
+.compareUrlHint {
+  margin: 10px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.compareAction {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.compareChooseLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff !important;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none !important;
+  box-shadow: 0 4px 24px rgba(45, 106, 79, 0.28);
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.compareChooseLink:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.compareChooseLinkGhost {
+  background: transparent;
+  color: var(--accent) !important;
+  border: 1.5px solid var(--border);
+  box-shadow: none;
+}
+
+.compareChooseLinkGhost:hover {
+  border-color: var(--accent);
+}
+
+.compareCardEmpty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 280px;
+  padding: 28px;
+}
+
+.compareEmptyBody {
+  margin: 0 0 20px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
 }
 
 /* Impact */
