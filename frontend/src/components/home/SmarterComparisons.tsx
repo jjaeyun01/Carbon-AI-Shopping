@@ -73,11 +73,8 @@ export default function SmarterComparisons() {
   return (
     <section id="how" className="section compare">
       <div className="container">
-        <h2 className="sectionTitle">Smarter Comparisons</h2>
-        <p className="sectionSub">
-          See how Novera compares products and recommends lower-carbon
-          alternatives.
-        </p>
+        <h2 className="sectionTitle">How It Works</h2>
+        <p className="sectionSub">Three steps to greener shopping — see a live comparison.</p>
 
         {loading && <p className="sectionMessage">Loading comparison...</p>}
         {error && <p className="sectionMessage errorMessage">{error}</p>}

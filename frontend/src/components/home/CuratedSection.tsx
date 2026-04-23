@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 import { trackUserAction } from "../../services/userActions";
 
 type Product = {
@@ -9,6 +10,7 @@ type Product = {
   price: number;
   material: string;
   eco_score: number;
+  carbon_kg: number;
   tag: string;
   image_url: string;
 };
@@ -18,6 +20,8 @@ export default function CuratedSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -77,16 +81,18 @@ export default function CuratedSection() {
       <div className="container">
         <div className="curatedTop">
           <div>
-            <h2 className="curatedTitle">Curated for You</h2>
-            <p className="curatedSub">
-              Discover lower-carbon products ranked by sustainability signals,
-              price fit, and category relevance.
-            </p>
+            <h2 className="curatedTitle">Top Picks</h2>
+            <p className="curatedSub">Our most loved eco-certified products</p>
           </div>
 
-          <a className="curatedLink" href="#">
-            View Marketplace <span aria-hidden="true">›</span>
-          </a>
+          <button
+            type="button"
+            className="curatedLink"
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+            onClick={() => navigate("/marketplace")}
+          >
+            View All →
+          </button>
         </div>
 
         <div className="searchBarWrap">
@@ -103,7 +109,7 @@ export default function CuratedSection() {
         {error && <p className="sectionMessage errorMessage">{error}</p>}
 
         {!loading && !error && filteredItems.length === 0 && (
-          <p className="sectionMessage">No products found for “{search}”.</p>
+          <p className="sectionMessage">No products found for "{search}".</p>
         )}
 
         {!loading && !error && filteredItems.length > 0 && (
@@ -143,16 +149,30 @@ export default function CuratedSection() {
                       <div>
                         <div className="productTag">{it.tag}</div>
                         <div className="productSubTag">
-                          Better alternative available
+                          {it.carbon_kg} kg CO₂e
                         </div>
                       </div>
-
-                      <span className="productAdd" aria-hidden="true">
-                        →
-                      </span>
                     </div>
                   </div>
                 </Link>
+
+                <button
+                  className="productAddToCart"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addToCart({
+                      id: it.id,
+                      name: it.name,
+                      price: it.price,
+                      image_url: it.image_url,
+                      material: it.material,
+                      eco_score: it.eco_score,
+                      carbon_kg: it.carbon_kg,
+                    });
+                  }}
+                >
+                  Add to Cart
+                </button>
               </article>
             ))}
           </div>

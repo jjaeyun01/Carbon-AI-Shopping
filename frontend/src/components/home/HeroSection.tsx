@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Badge from "../ui/Badge";
 import Button from "../ui/Button";
 import main from "../../assets/images/main/mainImage.png";
@@ -7,50 +8,49 @@ export default function HeroSection() {
     <section className="hero">
       <div className="container heroGrid">
         <div>
-          <Badge>AI-POWERED SUSTAINABLE SHOPPING</Badge>
+          <Badge>AI-Powered Eco Shopping</Badge>
 
           <h1 className="h1">
-            Shop Smarter. <br />
-            <span className="h1Accent">Choose Lower Carbon.</span>
+            Your everyday
+            <br />
+            products —{" "}
+            <span className="h1Accent">reimagined</span>
+            <br />
+            for the planet.
           </h1>
 
           <p className="lead">
-            Novera helps you compare products by sustainability signals like material,
-            carbon footprint, and sourcing so you can find better alternatives without
-            sacrificing quality, style, or price.
+            Compare products by materials, carbon footprint, and sourcing. Novera
+            surfaces lower-impact alternatives so you can shop with confidence.
           </p>
 
           <div className="heroActions">
             <Button
               variant="primary"
               onClick={() =>
-                document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })
-              }
-            >
-              Explore Products
-            </Button>
-
-            <Button
-              onClick={() =>
                 document.getElementById("how")?.scrollIntoView({ behavior: "smooth" })
               }
             >
-              See How It Works
+              Find My Eco Alternative →
             </Button>
+
+            <Link className="btn" to="/marketplace">
+              Browse Shop
+            </Link>
           </div>
 
           <div className="heroMiniStats">
             <div className="heroMiniStat">
-              <strong>1,200+ </strong>
-              <span>Products scored</span>
+              <strong>2,400+</strong>
+              <span>Eco Products</span>
             </div>
             <div className="heroMiniStat">
-              <strong>32% </strong>
-              <span>Avg. lower-carbon swap</span>
+              <strong>87%</strong>
+              <span>Avg. CO₂ Saved</span>
             </div>
             <div className="heroMiniStat">
-              <strong>AI </strong>
-              <span>Comparison engine</span>
+              <strong>150k+</strong>
+              <span>Happy Shoppers</span>
             </div>
           </div>
         </div>
