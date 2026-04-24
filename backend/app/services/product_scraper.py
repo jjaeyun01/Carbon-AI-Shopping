@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -67,15 +68,26 @@ def detect_brand_from_url(url: str) -> str:
 def infer_category(title: str, description: str) -> str:
     text = f"{title} {description}".lower()
 
-    if any(k in text for k in ["desk", "chair", "table", "sofa", "shelf", "bookcase", "dresser", "cabinet", "wardrobe"]):
+    # Check most-specific patterns first to avoid mis-categorisation
+    if any(k in text for k in ["sneaker", "shoe", "boot", "sandal", "loafer", "heel", "footwear", "trainer", "slipper", "runner shoe"]):
+        return "Shoes"
+    if any(k in text for k in ["shampoo", "conditioner", "face wash", "moisturizer", "serum", "sunscreen", "deodorant", "lip balm", "toothbrush", "body wash", "skincare", "skin care", "foundation", "mascara", "cleanser", "toner", "dry shampoo", "castile soap"]):
+        return "Beauty"
+    if any(k in text for k in ["yoga mat", "exercise mat", "gym bag", "resistance band", "kettlebell", "dumbbell", "workout", "fitness mat"]):
+        return "Fitness"
+    if any(k in text for k in ["sheet set", "duvet", "comforter", "bedding", "pillowcase", "bath towel", "hand towel", "bath rug", "throw blanket", "duvet insert", "mattress protector"]):
+        return "Home"
+    if any(k in text for k in ["frying pan", "saucepan", "cookware", "bento", "lunch box", "food storage", "dish soap", "glass cleaner", "food wrap", "beeswax wrap", "silicone bag", "cutting board", "coffee filter", "dish brush", "kitchen"]):
+        return "Kitchen"
+    if any(k in text for k in ["desk", "chair", "table", "sofa", "shelf", "bookcase", "dresser", "cabinet", "wardrobe", "bed frame", "couch", "sectional"]):
         return "Furniture"
-    if any(k in text for k in ["shirt", "tee", "t-shirt", "jacket", "hoodie", "pants", "dress", "sweater", "sweatshirt", "legging", "shorts", "skirt", "sock", "sneaker", "shoe", "boot"]):
+    if any(k in text for k in ["shirt", "tee", "t-shirt", "jacket", "hoodie", "pants", "dress", "sweater", "sweatshirt", "legging", "shorts", "skirt", "sock", "flannel", "jeans", "denim", "cardigan", "pullover", "blazer", "coat", "parka", "fleece"]):
         return "Clothing"
-    if any(k in text for k in ["bag", "backpack", "pack", "tote", "purse", "handbag", "clutch", "duffel"]):
+    if any(k in text for k in ["bag", "backpack", "pack", "tote", "purse", "handbag", "clutch", "duffel", "messenger bag", "crossbody", "rucksack", "satchel"]):
         return "Bags"
-    if any(k in text for k in ["watch", "cap", "hat", "wallet", "belt", "sunglasses", "jewelry", "bracelet", "ring", "necklace"]):
+    if any(k in text for k in ["watch", "cap", "hat", "wallet", "belt", "sunglasses", "jewelry", "bracelet", "ring", "necklace", "water bottle", "beanie", "scarf", "gloves", "phone case"]):
         return "Accessories"
-    if any(k in text for k in ["laptop", "stand", "keyboard", "mouse", "monitor", "cable", "charger", "phone", "tablet", "speaker", "headphone", "earphone"]):
+    if any(k in text for k in ["laptop", "keyboard", "mouse", "monitor", "cable", "charger", "phone", "tablet", "speaker", "headphone", "earphone", "laptop stand", "monitor stand", "charging"]):
         return "Tech"
 
     return "General"
@@ -190,8 +202,8 @@ def extract_material_text(full_text: str) -> str:
     return "unknown"
 
 
-def scrape_product_page(url: str) -> ScrapedProduct:
-    res = requests.get(url, headers=HEADERS, timeout=20)
+def scrape_product_page(url: str, timeout: int = 30) -> ScrapedProduct:
+    res = requests.get(url, headers=HEADERS, timeout=timeout)
     res.raise_for_status()
 
     soup = BeautifulSoup(res.text, "html.parser")
@@ -270,3 +282,67 @@ def scrape_product_page(url: str) -> ScrapedProduct:
         category=category,
         raw_text_excerpt=excerpt,
     )
+
+
+VALID_CATEGORIES = {
+    "Clothing", "Shoes", "Bags", "Accessories",
+    "Furniture", "Home", "Kitchen", "Beauty", "Fitness", "Tech", "General",
+}
+
+
+def claude_enrich_product(scraped: ScrapedProduct) -> dict:
+    """
+    Use Claude to recover product metadata when scraping gives poor results.
+    Returns a dict with keys: name, category, material, description (all optional).
+    No-ops silently if ANTHROPIC_API_KEY is not set or if the call fails.
+    """
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        return {}
+
+    needs_enrichment = (
+        not scraped.title
+        or scraped.title.lower() in ("unknown product", "")
+        or scraped.material_text == "unknown"
+        or scraped.category == "General"
+    )
+    if not needs_enrichment:
+        return {}
+
+    try:
+        import anthropic  # lazy import so missing package doesn't break the module
+
+        client = anthropic.Anthropic(api_key=api_key)
+        prompt = (
+            "Extract product information from this webpage. Return ONLY valid JSON — "
+            "no markdown, no explanation.\n\n"
+            f"URL: {scraped.source_url}\n"
+            f"Brand: {scraped.brand}\n"
+            f"Current title: {scraped.title}\n"
+            f"Page text excerpt:\n{scraped.raw_text_excerpt}\n\n"
+            "Return a JSON object with these fields:\n"
+            '  "name": clean product name (string)\n'
+            '  "category": one of Clothing, Shoes, Bags, Accessories, Furniture, '
+            "Home, Kitchen, Beauty, Fitness, Tech, General\n"
+            '  "material": primary material, e.g. "cotton", "recycled polyester", '
+            '"wood", "plastic" (string)\n'
+            '  "description": 1-2 sentence product description (string)'
+        )
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=400,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.content[0].text.strip()
+        # Strip markdown code fences if present
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        data = json.loads(raw)
+        # Validate category
+        if data.get("category") not in VALID_CATEGORIES:
+            data.pop("category", None)
+        return data
+    except Exception:
+        return {}

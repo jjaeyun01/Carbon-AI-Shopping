@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { trackUserAction } from "../../services/userActions";
+import ProductImage from "../shared/ProductImage";
 
 type Product = {
   id: number;
@@ -127,9 +128,10 @@ export default function CuratedSection() {
                   }
                 >
                   <div className="productMedia">
-                    <img
+                    <ProductImage
                       src={it.image_url}
                       alt={it.name}
+                      category={it.category}
                       className="productImage"
                     />
                     <span className="productBadge">AI VERIFIED</span>

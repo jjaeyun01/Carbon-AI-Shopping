@@ -2,10 +2,13 @@ import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import Base, SessionLocal, engine
+from app.database import Base, SessionLocal, engine, run_migrations
 from app.models import Product
 from app.routers.auth import router as auth_router
 from app.routers.dashboard import router as dashboard_router
@@ -55,6 +58,7 @@ def sync_products_from_json() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    run_migrations()
     Base.metadata.create_all(bind=engine)
     sync_products_from_json()
     yield

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(python3 *)",
+      "Bash(python -m app.scripts.generate_eco_catalog)",
+      "Bash(pip3 install *)"
+    ]
+  }
+}

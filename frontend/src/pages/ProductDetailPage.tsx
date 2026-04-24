@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { trackUserAction } from "../services/userActions";
+import ProductImage from "../components/shared/ProductImage";
 
 type Product = {
   id: number;
@@ -157,10 +158,12 @@ export default function ProductDetailPage() {
 
         <div className="detailGrid">
           <div className="detailImageCard">
-            <img
+            <ProductImage
               src={product.image_url}
               alt={product.name}
+              category={product.category}
               className="detailImage"
+              placeholderClassName="detailImage"
             />
           </div>
 
@@ -245,9 +248,10 @@ export default function ProductDetailPage() {
               {recommendations.map((item) => (
                 <article key={item.id} className="detailRecommendationCard">
                   <div className="detailRecommendationMedia">
-                    <img
+                    <ProductImage
                       src={item.image_url}
                       alt={item.name}
+                      category={item.category}
                       className="detailRecommendationImage"
                     />
                     <div className="detailRecommendationBadge">AI SUGGESTED</div>

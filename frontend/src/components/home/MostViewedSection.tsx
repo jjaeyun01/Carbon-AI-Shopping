@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { trackUserAction } from "../../services/userActions";
+import ProductImage from "../shared/ProductImage";
 
 type Product = {
   id: number;
@@ -83,7 +84,7 @@ export default function MostViewedSection() {
                 }
               >
                 <div className="productMedia">
-                  <img src={it.image_url} alt={it.name} className="productImage" />
+                  <ProductImage src={it.image_url} alt={it.name} category={it.category} className="productImage" />
                   <span className="productBadge">TRENDING</span>
                   <div className="productEcoPill">{it.view_count} views</div>
                 </div>

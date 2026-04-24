@@ -1,72 +1,122 @@
 from typing import Any
 
+# Categories that are considered "related" — recommendations can cross group boundaries
+# when no same-category eco alternatives exist.
+CATEGORY_GROUPS: dict[str, str] = {
+    "Clothing": "wearables",
+    "Shoes": "wearables",
+    "Bags": "carry",
+    "Accessories": "carry",
+    "Furniture": "home_living",
+    "Home": "home_living",
+    "Kitchen": "home_living",
+    "Beauty": "personal_care",
+    "Fitness": "personal_care",
+    "Tech": "tech",
+    "General": "general",
+}
 
-def load_price_similarity_score(base_price: float, candidate_price: float) -> float:
-    if base_price == 0:
+
+def _price_score(base: float, candidate: float) -> float:
+    if base == 0:
         return 0.0
-    diff_ratio = abs(base_price - candidate_price) / base_price
-    return max(0.0, 1.0 - diff_ratio)
+    diff = abs(base - candidate) / base
+    return max(0.0, 1.0 - diff)
 
 
-def compute_similarity(base: dict[str, Any], candidate: dict[str, Any]) -> float:
+def _compute_similarity(base: dict[str, Any], candidate: dict[str, Any]) -> float:
     score = 0.0
 
     if base["category"] == candidate["category"]:
         score += 0.5
-
-    price_score = load_price_similarity_score(base["price"], candidate["price"])
-    score += 0.3 * price_score
-
-    if base["material"].lower() == candidate["material"].lower():
+    elif CATEGORY_GROUPS.get(base["category"]) == CATEGORY_GROUPS.get(candidate["category"]):
+        # Related category (e.g., Clothing ↔ Shoes)
         score += 0.2
-    elif any(
-        word in candidate["material"].lower()
-        for word in base["material"].lower().split()
-    ):
+
+    score += 0.3 * _price_score(base["price"], candidate["price"])
+
+    b_mat = base["material"].lower()
+    c_mat = candidate["material"].lower()
+    if b_mat == c_mat:
+        score += 0.2
+    elif any(word in c_mat for word in b_mat.split()):
         score += 0.1
 
     return round(score, 3)
 
 
 def recommend_products(
-    base_product: dict[str, Any], all_products: list[dict[str, Any]]
+    base_product: dict[str, Any],
+    all_products: list[dict[str, Any]],
+    max_results: int = 4,
 ) -> list[dict[str, Any]]:
-    recommendations = []
+    """
+    Return up to `max_results` eco-friendlier alternatives to base_product.
 
-    for product in all_products:
-        if product["id"] == base_product["id"]:
-            continue
+    Strategy:
+    1. Prefer exact-category matches with positive eco_gain.
+    2. If fewer than max_results found, expand to related-category matches.
+    3. If still short, pull any product with a significantly better eco_score
+       (eco_gain >= 5) regardless of category.
+    """
+    base_eco = base_product["eco_score"]
+    base_group = CATEGORY_GROUPS.get(base_product["category"], "general")
 
-        if product["category"] != base_product["category"]:
-            continue
+    def _as_recommendation(p: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "id": p["id"],
+            "name": p["name"],
+            "category": p["category"],
+            "price": p["price"],
+            "material": p["material"],
+            "eco_score": p["eco_score"],
+            "carbon_kg": p["carbon_kg"],
+            "esg_rating": p["esg_rating"],
+            "shipping_type": p["shipping_type"],
+            "tag": p["tag"],
+            "image_url": p.get("image_url", ""),
+            "description": p.get("description", ""),
+            "similarity_score": _compute_similarity(base_product, p),
+            "eco_gain_score": base_eco - p["eco_score"],
+        }
 
-        similarity = compute_similarity(base_product, product)
-        eco_gain = base_product["eco_score"] - product["eco_score"]
+    # ── Pass 1: same category, eco_gain > 0 ──────────────────────────────
+    same_cat = [
+        _as_recommendation(p)
+        for p in all_products
+        if p["id"] != base_product["id"]
+        and p["category"] == base_product["category"]
+        and base_eco - p["eco_score"] > 0
+    ]
+    same_cat.sort(key=lambda x: (-x["similarity_score"], -x["eco_gain_score"]))
 
-        if eco_gain <= 0:
-            continue
+    results: list[dict[str, Any]] = same_cat[:max_results]
 
-        recommendations.append(
-            {
-                "id": product["id"],
-                "name": product["name"],
-                "category": product["category"],
-                "price": product["price"],
-                "material": product["material"],
-                "eco_score": product["eco_score"],
-                "carbon_kg": product["carbon_kg"],
-                "esg_rating": product["esg_rating"],
-                "shipping_type": product["shipping_type"],
-                "tag": product["tag"],
-                "image_url": product.get("image_url", ""),
-                "description": product.get("description", ""),
-                "similarity_score": similarity,
-                "eco_gain_score": eco_gain,
-            }
-        )
+    # ── Pass 2: related category group, eco_gain > 0 ─────────────────────
+    if len(results) < max_results:
+        seen_ids = {r["id"] for r in results}
+        related = [
+            _as_recommendation(p)
+            for p in all_products
+            if p["id"] != base_product["id"]
+            and p["id"] not in seen_ids
+            and CATEGORY_GROUPS.get(p["category"]) == base_group
+            and base_eco - p["eco_score"] > 0
+        ]
+        related.sort(key=lambda x: (-x["eco_gain_score"], -x["similarity_score"]))
+        results.extend(related[: max_results - len(results)])
 
-    recommendations.sort(
-        key=lambda x: (-x["similarity_score"], -x["eco_gain_score"])
-    )
+    # ── Pass 3: any category with significantly better eco_score ─────────
+    if len(results) < max_results:
+        seen_ids = {r["id"] for r in results}
+        fallback = [
+            _as_recommendation(p)
+            for p in all_products
+            if p["id"] != base_product["id"]
+            and p["id"] not in seen_ids
+            and base_eco - p["eco_score"] >= 5
+        ]
+        fallback.sort(key=lambda x: -x["eco_gain_score"])
+        results.extend(fallback[: max_results - len(results)])
 
-    return recommendations[:4]
+    return results

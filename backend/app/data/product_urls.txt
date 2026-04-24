@@ -1,10 +1,44 @@
-# IKEA
+# Curated PDP URLs for batch merge into products.json
+# Run: cd backend && python -m app.scripts.build_products_dataset --delay 2.5
+# Restart uvicorn after so SQLite syncs from products.json.
+
+# --- IKEA (Furniture / Home / Kitchen) ---
 https://www.ikea.com/us/en/p/micke-desk-white-90214308/
 https://www.ikea.com/us/en/p/lagkapten-alex-desk-white-s99431982/
+https://www.ikea.com/us/en/p/billy-bookcase-white-00263850/
+https://www.ikea.com/us/en/p/raskog-utility-cart-white-90343976/
+https://www.ikea.com/us/en/p/kallax-shelf-unit-white-80275887/
 
-# Patagonia
+# --- Patagonia (Clothing / Bags) ---
 https://www.patagonia.com/product/mens-p-6-logo-responsibili-tee/38504.html
 https://www.patagonia.com/product/black-hole-pack-32-liters/49302.html
 
-# REI
-https://www.rei.com/product/234123/example-product-url
+# --- REI (Clothing / Fitness / Outdoor) ---
+https://www.rei.com/product/168719/rei-co-op-traverse-trekking-poles-pair
+https://www.rei.com/product/185632/rei-co-op-half-dome-sl-2-tent-with-footprint
+https://www.rei.com/product/844652/rei-co-op-xt-85-pack
+
+# --- Everlane (Clothing) ---
+https://www.everlane.com/products/womens-organic-cotton-box-cut-tee-graystone
+
+# --- Allbirds (Accessories / Footwear) ---
+https://www.allbirds.com/products/mens-tree-runners-navy-night
+
+# --- tentree (Clothing) ---
+https://www.tentree.com/products/mens-classic-cotton-t-shirt
+
+# --- EarthHero (Kitchen / Beauty / Home) ---
+https://earthhero.com/products/hero-essentials-kit
+https://earthhero.com/products/earth-harbor-naturals-eclipse-sheer-mineral-sunscreen
+
+# --- Grove (Kitchen / Home) ---
+https://www.grove.co/products/glass-cleaner-concentrate
+
+# --- Manduka (Fitness) ---
+https://www.manduka.com/products/prolite-yoga-mat-71-midnight
+
+# --- Prana (Clothing) ---
+https://www.prana.com/p/mens-bragdon-pullover/M41190011.html
+
+# --- Brooklinen (Home) ---
+https://www.brooklinen.com/products/classic-core-sheet-set

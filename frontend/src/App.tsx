@@ -14,6 +14,7 @@ import MarketplacePage from "./pages/MarketplacePage.tsx";
 import CartDrawer from "./components/cart/CartDrawer.tsx";
 import { CartProvider } from "./context/CartContext.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
+import VerifyEmailPage from "./pages/VerifyEmailPage.tsx";
 
 function HomePage() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/marketplace" element={<MarketplacePage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
             </Routes>
           </main>
           <Footer />

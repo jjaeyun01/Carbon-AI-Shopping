@@ -1009,29 +1009,84 @@ a.navLink.active::after {
 
 .dashGraph {
   margin-top: 12px;
-  height: 210px;
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(26, 61, 46, 0.92), rgba(82, 183, 136, 0.65));
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 24px;
+  padding: 18px 20px 14px;
+}
+
+/* ── Chart wrapper: title + bars ── */
+.chartWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.chartMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.chartTitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.chartUnit {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.05em;
 }
 
 .graphBars {
   width: 100%;
-  height: 100%;
+  height: 140px;
   display: flex;
   align-items: flex-end;
-  gap: 14px;
+  gap: 10px;
+}
+
+/* Each bar column: value → bar → label */
+.graphBarCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.graphBarVal {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .graphBar {
-  flex: 1;
-  border-radius: 999px 999px 10px 10px;
-  background: rgba(255, 255, 255, 0.78);
-  min-height: 28%;
+  width: 100%;
+  border-radius: 6px 6px 3px 3px;
+  background: rgba(255, 255, 255, 0.55);
+  transition: height 0.4s ease;
+}
+
+.graphBarLabel {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+.graphBarLabelActive {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
 }
 
 .dashMiniGrid {
@@ -1424,6 +1479,53 @@ a.navLink.active::after {
   color: #ffd2d2;
 }
 
+/* ── Impact: unauthenticated / empty state ── */
+.impactAuthPrompt {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.impactAuthIcon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.impactAuthMsg {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 400px;
+}
+
+.impactAuthMsg strong {
+  color: #fff;
+}
+
+.impactSignInBtn {
+  align-self: flex-start;
+  background: #fff;
+  color: #0f2a1e;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.impactSignInBtn:hover {
+  opacity: 0.88;
+}
+
+/* ── Graph bar active (latest month) ── */
+.graphBarActive {
+  background: #4ade80 !important;
+  opacity: 1 !important;
+}
+
 .searchBarWrap {
   margin: 0 0 28px;
 }
@@ -1452,6 +1554,33 @@ a.navLink.active::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.productImagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  color: var(--text-muted, #6b7280);
+}
+
+.productImagePlaceholderIcon {
+  font-size: 48px;
+  line-height: 1;
+  filter: grayscale(0.15);
+}
+
+.productImagePlaceholderLabel {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #16a34a;
+  opacity: 0.7;
 }
 
 .productMedia::after {
@@ -1523,6 +1652,18 @@ a.navLink.active::after {
   height: 100%;
   min-height: 560px;
   object-fit: cover;
+}
+
+.detailImage.productImagePlaceholder {
+  min-height: 560px;
+}
+
+.detailImage.productImagePlaceholder .productImagePlaceholderIcon {
+  font-size: 80px;
+}
+
+.detailImage.productImagePlaceholder .productImagePlaceholderLabel {
+  font-size: 15px;
 }
 
 .detailInfoCard {
@@ -1663,6 +1804,18 @@ a.navLink.active::after {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.detailRecommendationImage.productImagePlaceholder {
+  display: flex;
+}
+
+.detailRecommendationImage.productImagePlaceholder .productImagePlaceholderIcon {
+  font-size: 36px;
+}
+
+.detailRecommendationImage.productImagePlaceholder .productImagePlaceholderLabel {
+  font-size: 10px;
 }
 
 .detailRecommendationBadge {
@@ -2792,9 +2945,207 @@ a.navLink.active::after {
 .marketplaceControls {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 36px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
+
+/* ── Filter chips row ── */
+.filterChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.filterChip:hover { background: #dcfce7; }
+
+.filterChipClear {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.filterChipClear:hover { color: var(--text); }
+
+/* ── Filter toggle button ── */
+.filterToggleBtn {
+  position: relative;
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.filterToggleBtn:hover { border-color: #16a34a; color: #16a34a; }
+
+.filterBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+/* ── Layout: sidebar + grid ── */
+.marketplaceLayout {
+  display: block;
+}
+.marketplaceLayout.sidebarOpen {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.marketplaceGridWrapper {
+  min-width: 0;
+}
+
+/* ── Sidebar ── */
+.filterSidebar {
+  position: sticky;
+  top: 90px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filterSidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.filterSidebarTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.filterResetBtn {
+  font-size: 13px;
+  color: #16a34a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0;
+}
+.filterResetBtn:hover { text-decoration: underline; }
+
+/* ── Filter group ── */
+.filterGroup {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filterGroup:last-child { border-bottom: none; }
+
+.filterGroupLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.filterOption {
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filterOption:hover { background: #f9fafb; }
+.filterOption.active {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+  font-weight: 600;
+}
+
+.filterCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  transition: background 0.12s;
+}
+.filterCheckbox:hover { background: #f9fafb; }
+.filterCheckbox input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #16a34a;
+  cursor: pointer;
+}
+
+.filterOptionCount {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── ESG badges ── */
+.esgBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.esgBadge--AAA  { background: #dcfce7; color: #14532d; }
+.esgBadge--AA   { background: #d1fae5; color: #166534; }
+.esgBadge--A    { background: #ecfdf5; color: #15803d; }
+.esgBadge--Bplus { background: #fef9c3; color: #854d0e; }
+.esgBadge--B    { background: #fef3c7; color: #92400e; }
+.esgBadge--C    { background: #fee2e2; color: #991b1b; }
+.esgBadge--Cminus { background: #fecaca; color: #7f1d1d; }
 
 .categoryTabs {
   display: flex;

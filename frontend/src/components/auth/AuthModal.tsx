@@ -7,11 +7,16 @@ type Props = {
 };
 
 export default function AuthModal({ onClose, defaultTab = "login" }: Props) {
-  const { login, register } = useAuth();
+  const { login, register, resendVerification } = useAuth();
   const [tab, setTab] = useState<"login" | "register">(defaultTab);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  // Verification-sent state
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [sentToEmail, setSentToEmail] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({
@@ -26,6 +31,13 @@ export default function AuthModal({ onClose, defaultTab = "login" }: Props) {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
+
+  // Countdown timer for resend cooldown
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,13 +66,16 @@ export default function AuthModal({ onClose, defaultTab = "login" }: Props) {
     }
     setLoading(true);
     try {
-      await register({
+      const result = await register({
         email: registerForm.email,
         username: registerForm.username,
         full_name: registerForm.full_name,
         password: registerForm.password,
       });
-      onClose();
+      if (result.requiresVerification) {
+        setSentToEmail(result.email);
+        setVerificationSent(true);
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -68,6 +83,60 @@ export default function AuthModal({ onClose, defaultTab = "login" }: Props) {
     }
   };
 
+  const handleResend = async () => {
+    if (resendCooldown > 0) return;
+    setResendCooldown(60);
+    try {
+      await resendVerification(sentToEmail);
+    } catch {
+      // Silently fail — backend message is intentionally vague
+    }
+  };
+
+  // ── Verification-sent screen ──────────────────────────────────────────────
+  if (verificationSent) {
+    return (
+      <>
+        <div className="authOverlay" ref={overlayRef} onClick={(e) => { if (e.target === overlayRef.current) onClose(); }} />
+        <div className="authModal" role="dialog" aria-modal="true">
+          <button className="authClose" onClick={onClose} aria-label="Close">✕</button>
+          <div className="authForm" style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 48, marginBottom: 8 }}>📬</div>
+            <h2 className="authTitle">Check your email</h2>
+            <p className="authSub" style={{ marginBottom: 24 }}>
+              We sent a verification link to<br />
+              <strong>{sentToEmail}</strong>
+            </p>
+            <p style={{ fontSize: 14, color: "var(--c-muted, #6b7280)", lineHeight: 1.6, marginBottom: 24 }}>
+              Click the link in the email to activate your account.
+              The link expires in 24 hours.
+            </p>
+            <button
+              type="button"
+              className="authSubmitBtn"
+              onClick={handleResend}
+              disabled={resendCooldown > 0}
+              style={{ marginBottom: 12 }}
+            >
+              {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend verification email"}
+            </button>
+            <p className="authSwitch">
+              Already verified?{" "}
+              <button
+                type="button"
+                className="authSwitchLink"
+                onClick={() => { setVerificationSent(false); setTab("login"); }}
+              >
+                Sign in
+              </button>
+            </p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ── Login / Register forms ────────────────────────────────────────────────
   return (
     <>
       <div
@@ -128,7 +197,7 @@ export default function AuthModal({ onClose, defaultTab = "login" }: Props) {
             </button>
 
             <p className="authSwitch">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <button type="button" className="authSwitchLink" onClick={() => { setTab("register"); setError(""); }}>
                 Sign up
               </button>

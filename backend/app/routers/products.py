@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Product
 from app.services.carbon_calculator import estimate_carbon, infer_shipping_type
-from app.services.product_scraper import scrape_product_page
+from app.services.product_scraper import claude_enrich_product, scrape_product_page
 from app.services.recommendation import recommend_products
 
 router = APIRouter(prefix="/products", tags=["products"])
@@ -39,11 +39,19 @@ def _find_product_by_source_url(db: Session, url: str) -> Product | None:
 
 def _scrape_and_create_product(db: Session, url: str) -> Product:
     scraped = scrape_product_page(url)
+
+    # Use Claude to recover missing metadata when scraping gives poor results
+    enriched = claude_enrich_product(scraped)
+    name = enriched.get("name") or scraped.title or "Unknown Product"
+    category = enriched.get("category") or scraped.category
+    material_text = enriched.get("material") or scraped.material_text
+    description = enriched.get("description") or scraped.description or scraped.raw_text_excerpt[:220]
+
     shipping_type = infer_shipping_type(scraped.brand + " " + scraped.source_url)
     carbon = estimate_carbon(
-        category=scraped.category,
-        title=scraped.title,
-        material_text=scraped.material_text,
+        category=category,
+        title=name,
+        material_text=material_text,
         shipping_type=shipping_type,
     )
     breakdown = {
@@ -52,8 +60,8 @@ def _scrape_and_create_product(db: Session, url: str) -> Product:
         "shipping_carbon_kg": carbon.shipping_carbon_kg,
     }
     product = Product(
-        name=scraped.title,
-        category=scraped.category,
+        name=name,
+        category=category,
         price=scraped.price,
         material=carbon.material.title(),
         eco_score=carbon.eco_score,
@@ -62,7 +70,7 @@ def _scrape_and_create_product(db: Session, url: str) -> Product:
         shipping_type=shipping_type.title(),
         tag="AI Estimated",
         image_url=scraped.image_url,
-        description=scraped.description or scraped.raw_text_excerpt[:220],
+        description=description,
         source_url=scraped.source_url,
         carbon_breakdown=json.dumps(breakdown),
     )
@@ -102,11 +110,26 @@ def get_products(
     category: str | None = Query(default=None),
     limit: int | None = Query(default=None, ge=1),
     sort: str | None = Query(default=None),
+    # Extended filters
+    min_price: float | None = Query(default=None, ge=0),
+    max_price: float | None = Query(default=None, ge=0),
+    esg_ratings: str | None = Query(default=None),   # comma-separated e.g. "AAA,AA,A"
+    max_eco_score: int | None = Query(default=None),  # inclusive upper bound
     db: Session = Depends(get_db),
 ):
     query = db.query(Product)
     if category and category.lower() != "all":
         query = query.filter(Product.category.ilike(category))
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
+    if esg_ratings:
+        ratings = [r.strip() for r in esg_ratings.split(",") if r.strip()]
+        if ratings:
+            query = query.filter(Product.esg_rating.in_(ratings))
+    if max_eco_score is not None:
+        query = query.filter(Product.eco_score <= max_eco_score)
     if sort == "eco_score_asc":
         query = query.order_by(Product.eco_score.asc())
     elif sort == "price_asc":

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 DB_PATH = Path(__file__).resolve().parent / "data" / "novera.db"
@@ -24,3 +24,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def run_migrations() -> None:
+    """Incremental schema changes that SQLAlchemy create_all doesn't handle (column additions)."""
+    with engine.connect() as conn:
+        # Add is_verified to users table for existing DBs
+        cols = [row[1] for row in conn.execute(text("PRAGMA table_info(users)"))]
+        if "is_verified" not in cols:
+            # Default existing users to verified=1 so they aren't locked out
+            conn.execute(text("ALTER TABLE users ADD COLUMN is_verified BOOLEAN NOT NULL DEFAULT 1"))
+            conn.commit()

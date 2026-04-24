@@ -20,6 +20,16 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Allow other components (e.g. ImpactSection) to open the auth modal
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const tab = (e as CustomEvent<{ tab: "login" | "register" }>).detail?.tab ?? "login";
+      setAuthModal(tab);
+    };
+    window.addEventListener("novera:open-auth", handler);
+    return () => window.removeEventListener("novera:open-auth", handler);
+  }, []);
+
   const scrollTo = (id: string) => {
     if (window.location.pathname !== "/") {
       navigate("/");
